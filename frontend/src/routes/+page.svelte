@@ -7,7 +7,7 @@
 	async function createNewGame() {
 		loading.set(true);
 		try {
-			const res = await fetch('/api/new', { method: 'POST' });
+			const res = await fetch(`${import.meta.env.VITE_WORKER_URL}/api/new`, { method: 'POST' });
 			const { roomId } = await res.json();
 			goto(`/room/${roomId}`);
 		} catch (error) {
