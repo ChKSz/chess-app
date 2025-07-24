@@ -1,0 +1,11 @@
+name = "chess-worker"
+main = "src/index.ts"
+compatibility_date = "2025-07-24"
+
+[[durable_objects.bindings]]
+name = "ROOM"
+class_name = "RoomDO"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = [ "RoomDO" ]

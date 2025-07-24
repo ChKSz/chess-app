@@ -1,0 +1,123 @@
+在线国际象棋项目文档  
+（面向 Cloudflare Workers 的极简、美观、实时对弈方案）
+
+────────────────────────
+1. 项目愿景
+• 浏览器即可开房对弈，无需安装  
+• 支持实时走子、观战、棋谱复盘  
+• UI 优雅、移动优先、深色模式  
+• 100 % 跑在 Cloudflare 边缘，全球低延迟
+
+────────────────────────
+2. 技术栈总览
+| 层级 | 选型 | 理由 |
+|---|---|---|
+| 前端框架 | SvelteKit | 编译期魔力 → 极小包体；官方 adaptor 一键部署到 Cloudflare Pages/Workers |
+| 样式 | TailwindCSS + daisyUI | 原子类快速迭代，daisyUI 自带深色模式、棋盘风格组件 |
+| 棋盘渲染 | chessground (lichess 开源) | 轻量、手势友好、支持移动端拖拽 |
+| 棋规 & 逻辑 | chess.js (TypeScript) | 走子合法性、FEN/PGN 解析、将军检测 |
+| 实时通信 | Cloudflare Durable Objects | 单房间单实例，天然 WebSocket 支撑，<10 ms 延迟 |
+| 状态持久化 | Durable Objects 内置存储 | 每局 1-2 KB JSON，自动落盘 |
+| 部署目标 | Cloudflare Workers + Pages | 边缘函数 + 静态资源一体，免费额度充足 |
+
+────────────────────────
+3. 系统架构
+        ┌──────────────┐
+        │  SvelteKit   │  ←─ 静态资源 (Pages)
+        │  (前端)      │
+        └────┬─────────┘
+             │HTTPS
+┌────────────┴────────────┐
+│   Cloudflare Workers    │
+│  (HTTP API / REST)      │
+└────┬────────────┬───────┘
+     │WebSocket   │RPC
+┌────┴────┐ ┌────┴────┐
+│Room DO 1│ │Room DO 2│ …  ← Durable Objects
+└─────────┘ └─────────┘
+
+• 每个对局 = 一个 Durable Object 实例  
+• 客户端先调用 Workers REST 接口 /api/new 获取房间 id，再 wss:// 直连对应 DO  
+• DO 内部维护：棋盘 FEN、走子历史、计时器、在线用户列表
+
+────────────────────────
+4. 目录结构（monorepo）
+chess-app/
+├─ frontend/           # SvelteKit
+│  ├─ src/
+│  │  ├─ lib/chess.ts  # chess.js 封装
+│  │  └─ routes/
+│  ├─ static/
+│  └─ svelte.config.js (adapter-cloudflare)
+└─ worker/
+   ├─ src/
+   │  ├─ index.ts      # HTTP 路由
+   │  └─ RoomDO.ts     # Durable Object
+   └─ wrangler.toml
+
+────────────────────────
+5. 核心 API
+POST /api/new          → 返回 {roomId, wssUrl}
+POST /api/join         → 校验密码、返回 JWT
+WS   /room/{id}        → 走子、聊天、心跳
+
+消息格式 (JSON):
+{type:"move", uci:"e2e4"}  
+{type:"draw_offer"}  
+{type:"resign"}
+
+────────────────────────
+6. 前端亮点
+• 响应式布局：flex + aspect-square 自动缩放棋盘  
+• 主题切换：daisyUI 的 data-theme="dark"  
+• 音效：每步棋播放 mp3（浏览器 AudioContext）  
+• 棋谱面板：可折叠，实时 PGN 导出
+
+────────────────────────
+7. 本地开发
+# 前端
+cd frontend
+pnpm i
+pnpm dev          # localhost:5173
+
+# Worker + DO
+cd ../worker
+pnpm i
+wrangler dev --local --persist
+
+────────────────────────
+8. 部署到 Cloudflare
+1. 安装适配器  
+   pnpm i -D @sveltejs/adapter-cloudflare
+2. svelte.config.js
+   import adapter from '@sveltejs/adapter-cloudflare';
+   export default { kit: { adapter: adapter() } };
+3. wrangler.toml
+   name = "chess-worker"
+   main = "src/index.ts"
+   [[durable_objects.bindings]]
+   name = "ROOM"
+   class_name = "RoomDO"
+4. 推送  
+   pnpm build  
+   wrangler deploy  
+   Pages 自动从 GitHub 部署
+
+────────────────────────
+9. 性能 & 额度
+• Workers 免费：100k req/day，足以 500 局/天  
+• Durable Objects：首 1 GB-sec/天免费，单局 < 1 KB 状态  
+• 冷启动 < 1 ms（原生 Workers），实时对弈无感知
+
+────────────────────────
+10. 未来扩展
+• AI 对战：调用 Cloudflare Workers AI (Gemini 1.5 Flash)  
+• 用户系统：Cloudflare Access + KV 存储 Elo  
+• 复盘分析：引入 chessground 的 SVG 箭头与 Variation 分支
+
+────────────────────────
+11. 参考开源
+• lichess-org/lila（Scala+TS，完整功能）  
+• React + Node 版在线对弈示例
+
+至此，一份可直接落地的 Cloudflare 边缘国际象棋项目文档完成。祝编码愉快！

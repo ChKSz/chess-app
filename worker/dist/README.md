@@ -1,0 +1,1 @@
+This folder contains the built output assets for the worker "chess-worker" generated at 2025-07-24T07:45:13.885Z.
