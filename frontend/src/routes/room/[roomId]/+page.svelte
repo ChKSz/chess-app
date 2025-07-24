@@ -49,8 +49,8 @@
 			},
 		});
 
-		const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-		const wsUrl = new URL(`/room/${roomId}`, `${wsProtocol}//${window.location.host}`.replace('http', 'ws'));
+		const wsProtocol = import.meta.env.VITE_WORKER_URL.startsWith('https') ? 'wss:' : 'ws:';
+		const wsUrl = new URL(`/room/${roomId}`, import.meta.env.VITE_WORKER_URL.replace('https', 'wss').replace('http', 'ws'));
 		ws = new WebSocket(wsUrl);
 
 		ws.addEventListener('message', (msg) => {
