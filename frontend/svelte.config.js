@@ -9,12 +9,13 @@ const config = {
 
 	kit: {
 		adapter: adapter(),
-		vite: {
-			css: {
-				postcss: './postcss.config.js',
-			},
+	},
+	// Move vite config here, outside of kit
+	vite: {
+		css: {
+			postcss: './postcss.config.js',
 		},
-	}
+	},
 };
 
 export default config;
