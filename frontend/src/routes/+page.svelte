@@ -7,7 +7,7 @@
 	async function createNewGame() {
 		loading.set(true);
 		try {
-			const res = await fetch('http://127.0.0.1:8787/api/new', { method: 'POST' });
+			const res = await fetch('/api/new', { method: 'POST' });
 			const { roomId } = await res.json();
 			goto(`/room/${roomId}`);
 		} catch (error) {
