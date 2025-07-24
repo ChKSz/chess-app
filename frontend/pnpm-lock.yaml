@@ -38,10 +38,13 @@ importers:
         version: 5.0.46
       svelte-preprocess:
         specifier: ^6.0.3
-        version: 6.0.3(postcss@8.5.6)(svelte@5.36.14)
+        version: 6.0.3(postcss@8.5.6)(svelte@5.36.14)(typescript@5.8.3)
       tailwindcss:
         specifier: ^4.1.11
         version: 4.1.11
+      typescript:
+        specifier: ^5.8.3
+        version: 5.8.3
 
 packages:
 
@@ -1206,6 +1209,11 @@ packages:
   tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
 
+  typescript@5.8.3:
+    resolution: {integrity: sha512-p1diW6TqL9L07nNxvRMM7hMMw4c5XOo/1ibL4aAIGmSAt9slTE1Xgw5KWuof2uTOvCg9BY7ZRi+GaF+7sfgPeQ==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+
   ufo@1.6.1:
     resolution: {integrity: sha512-9a4/uxlTWJ4+a5i0ooc1rU7C7YOw3wT+UGqdeNNHWnOF9qcMBgLRS+4IYUqbczewFx4mLEig6gawh7X6mFlEkA==}
 
@@ -2179,11 +2187,12 @@ snapshots:
 
   supports-color@10.0.0: {}
 
-  svelte-preprocess@6.0.3(postcss@8.5.6)(svelte@5.36.14):
+  svelte-preprocess@6.0.3(postcss@8.5.6)(svelte@5.36.14)(typescript@5.8.3):
     dependencies:
       svelte: 5.36.14
     optionalDependencies:
       postcss: 8.5.6
+      typescript: 5.8.3
 
   svelte@5.36.14:
     dependencies:
@@ -2224,6 +2233,8 @@ snapshots:
 
   tslib@2.8.1:
     optional: true
+
+  typescript@5.8.3: {}
 
   ufo@1.6.1: {}
 
